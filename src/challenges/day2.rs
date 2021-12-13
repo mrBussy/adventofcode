@@ -1,6 +1,7 @@
 use regex;
 use std::fs::File;
 use std::io::*;
+use super::Settings;
 
 struct Action {
     direction: String,
@@ -73,10 +74,16 @@ fn part_2(instructions: &Vec<Action>) {
     );
 }
 
-pub fn run() {
-    let filename: String = "data/example_day_2".to_string();
-    let filename: String = "data/day2".to_string();
-    let instructions = parse_file(filename);
+pub fn run(settings: Settings) {
+    let filename: String;
+    if settings.run_example { 
+        filename = "data/example_day_2".to_string(); }
+    else {
+        filename = "data/day2".to_string();
+    }
+
+    let instructions = parse_file(filename);        
+    
 
     part_1(&instructions);
     part_2(&instructions);

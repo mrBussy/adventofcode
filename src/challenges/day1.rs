@@ -1,6 +1,7 @@
 use colored::*;
 use std::fs::File;
 use std::io::*;
+use super::Settings;
 
 /// Read the raw measurements from the specified file
 fn get_measurements(filename: String) -> Vec<i32> {
@@ -41,8 +42,15 @@ fn calculate_sliding_increase(measurements: &Vec<i32>) -> usize {
     return calculate_increases(&sliding_sum);
 }
 
-pub fn run() {
-    let measurements = get_measurements("data/day1".to_string());
+pub fn run(settings: Settings) {
+    let filename: String;
+    if settings.run_example {
+        filename = "data/example_day_1".to_string();
+    }
+    else {
+        filename = "data/day1".to_string();
+    }
+    let measurements = get_measurements(filename);
     let increases = calculate_increases(&measurements);
     println!("{}: {}", "Increased: ".blue(), increases);
     let sliding_increased = calculate_sliding_increase(&measurements);

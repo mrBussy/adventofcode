@@ -1,7 +1,11 @@
 use adventofcode::challenges;
+use adventofcode::Settings;
 
 pub fn main() {
 
-    challenges::run();
+    // Set start with default settings
+    let settings: Settings = Settings::new();
+
+    challenges::run(settings);
 
 }

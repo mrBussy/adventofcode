@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::*;
 use colored::*;
 use std::iter::Iterator;
+use super::Settings;
 
 fn parse_file(filename: String) -> Vec<i16> {
     let file = File::open(filename).unwrap();
@@ -72,28 +73,30 @@ fn part_1(measurements: &Vec<i16>) {
 /// - Finally, to find the life support rating, multiply the oxygen generator rating (23) by the CO2 scrubber rating (10) to get 230.
 /// 
 /// Use the binary numbers in your diagnostic report to calculate the oxygen generator rating and CO2 scrubber rating, then multiply them together. What is the life support rating of the submarine? (Be sure to represent your answer in decimal, not binary.)
-fn part_2(measurements: &Vec<i16>) {
+fn part_2(settings: Settings, measurements: &Vec<i16>) {
 
+    let datalen: i8;
+    if settings.run_example { datalen = 5; } else { datalen=12; }
+    
     // First calculate the oxygen
-    let mut mcmask: i16 = (find_most_common(measurements, 12) as i16) << 12;
+    let mut i: i8 = datalen;
+    let mut mcmask: i16 = find_most_common(measurements, i) << i-1;
     let mut subset: Vec<i16> = measurements.clone();
-    println!("mcmask: ");
+    println!("mcmask: {:8b}", mcmask);
 
-    for i in (0..12).rev() {
+
+    loop {
+        // Start reducing based on the found mask
         subset.retain(|&x| x & mcmask == mcmask);
         if subset.len() <=1 { break; }
-        mcmask = (find_most_common(measurements, i) as i16) << i;
-        println!("mcmask: {:b}, subset.len(): {}", mcmask, subset.len());
-        if mcmask <= 0 {break;}
+        if i>0 { i -= 1;}    
+        mcmask = (find_most_common(measurements, i) as i16) << i-1;
+        println!("i: {}, mcmask: {:b}, subset.len(): {}, set: {:#?}", i, mcmask, subset.len(), subset);
     }
 
-    subset.iter().for_each(|x| println!("{}: {}", "Oxygen".blue(), x));
 
-//   let mut xs = vec![1, 2, 3];
-//    let some_x = 2;
-//    xs.retain(|&x| x != some_x);
-//    println!("{:?}", xs); // prints [1, 3]
-    
+
+    subset.iter().for_each(|x| println!("{}: {}", "Oxygen".blue(), x));
 
 }
 
@@ -104,19 +107,26 @@ fn part_2(measurements: &Vec<i16>) {
 /// @param bitlist: Vector containing all the bits to search in
 /// @param index: get the position in the bitvalue (15..0) 
 /// @return: 1 of the most common on the index = 1; else 0 
-fn find_most_common(bitlist: &Vec<i16>, index: i16) -> i8 {
+fn find_most_common(bitlist: &Vec<i16>, index: i8) -> i16 {
 
-    let mask = 0b1 << index;
-    
+    print!("index: {};", index);
+    let mask: i16 = 0b1 << index-1;
+    println!("mask: {:08b}", mask);
+
     (bitlist.iter().enumerate().filter(|(_index, value)| *value & mask == mask).count() >= 
-    bitlist.len()/2) as i8
+    bitlist.len()/2) as i16
 }
 
-pub fn run() {
-    let filename: String = "data/example_day_3".to_string();
-    //let filename: String = "data/day3".to_string();
+pub fn run(settings: Settings) {
+    let filename: String;
+    if settings.run_example {
+        filename = "data/example_day_3".to_string();
+    }
+    else {
+        filename = "data/day3".to_string();
+    }
     let measurements = parse_file(filename);
 
     part_1(&measurements);
-    part_2(&measurements);
+    part_2(settings, &measurements);
 }
