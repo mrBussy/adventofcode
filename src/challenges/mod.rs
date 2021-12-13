@@ -24,6 +24,6 @@ pub fn run() {
     day1::run();
     println!("{:-^1$}", " DAY 2 ".truecolor(255, 128, 0), 80);
     day2::run();
-    println!("{:-^1$}", " DAY 2 ".truecolor(255, 255, 0), 80);
+    println!("{:-^1$}", " DAY 3 ".truecolor(255, 255, 0), 80);
     day3::run();
 }
