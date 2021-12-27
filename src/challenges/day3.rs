@@ -117,6 +117,30 @@ fn find_most_common(bitlist: &Vec<i16>, index: i8) -> i16 {
     bitlist.len()/2) as i16
 }
 
+#[cfg(test)]
+mod test {
+
+     #[test]
+     fn fnc_default_1() {
+         let example: Vec<i16> = vec![0b010000, 0b010000, 0b000000];
+
+         assert_eq!(super::find_most_common(&example, 5), 1);
+     }
+     #[test]
+     fn fnc_default_0() {
+         let example: Vec<i16> = vec![0b010000, 0b000000, 0b000000];
+
+         assert_eq!(super::find_most_common(&example, 5), 0);
+     }
+
+    #[test]
+     fn fnc_equal_1() {
+         let example: Vec<i16> = vec![0b010000, 0b010000, 0b000000, 0b000000];
+
+         assert_eq!(super::find_most_common(&example, 5), 1);
+     }
+}
+
 pub fn run(settings: Settings) {
     let filename: String;
     if settings.run_example {
