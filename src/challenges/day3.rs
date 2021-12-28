@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::*;
+use std::result::Result;
 use colored::*;
 use std::iter::Iterator;
 use super::Settings;
@@ -77,27 +78,44 @@ fn part_2(settings: Settings, measurements: &Vec<i16>) {
 
     let datalen: i8;
     if settings.run_example { datalen = 5; } else { datalen=12; }
-    
-    // First calculate the oxygen
-    let mut i: i8 = datalen;
-    let mut mcmask: i16 = find_most_common(measurements, i) << i-1;
+
+    let mut index: i8 = datalen-1;
     let mut subset: Vec<i16> = measurements.clone();
-    println!("mcmask: {:8b}", mcmask);
 
+    while index >= 0 {
+        let mcb: i16 = find_most_common(&subset, index).unwrap();
 
-    loop {
-        // Start reducing based on the found mask
-        subset.retain(|&x| x & mcmask == mcmask);
+        if mcb == 1 {
+            subset.retain(|&x| x & (0b1<<index) == (0b1<<index) );
+        }else {
+            subset.retain(|&x| x & (0b1<<index) != (0b1<<index) );
+        }
+        if settings.run_example {println!("index: {}, mcb: {:b}, subset.len(): {}, set: {:#?}", index, mcb, subset.len(), subset);}
         if subset.len() <=1 { break; }
-        if i>0 { i -= 1;}    
-        mcmask = (find_most_common(measurements, i) as i16) << i-1;
-        println!("i: {}, mcmask: {:b}, subset.len(): {}, set: {:#?}", i, mcmask, subset.len(), subset);
+        index -= 1;
     }
+    let oxigen: i16 = *subset.get(0).unwrap();
+    println!("Oxigen: {0:b} ({0})", oxigen);
 
+    // reset values
+    subset = measurements.clone();
+    index = datalen-1;
+    while index >= 0 {
+        let mcb: i16 = find_most_common(&subset, index).unwrap();
 
-
-    subset.iter().for_each(|x| println!("{}: {}", "Oxygen".blue(), x));
-
+        if mcb == 0 {
+            subset.retain(|&x| x & (0b1<<index) == (0b1<<index) );
+        }else {
+            subset.retain(|&x| x & (0b1<<index) != (0b1<<index) );
+        }
+        if settings.run_example {println!("index: {}, mcb: {:b}, subset.len(): {}, set: {:#?}", index, mcb, subset.len(), subset);}
+        if subset.len() <=1 { break; }
+        index -= 1;
+    }
+    let co2: i16 = *subset.get(0).unwrap();
+    println!("CO2: {0:b} ({0})", co2);
+    println!("-----");
+    println!("Life support rating: {}", oxigen*co2);
 }
 
 /// From a list of bits return the most common bit.
@@ -107,40 +125,19 @@ fn part_2(settings: Settings, measurements: &Vec<i16>) {
 /// @param bitlist: Vector containing all the bits to search in
 /// @param index: get the position in the bitvalue (15..0) 
 /// @return: 1 of the most common on the index = 1; else 0 
-fn find_most_common(bitlist: &Vec<i16>, index: i8) -> i16 {
+fn find_most_common(bitlist: &Vec<i16>, index: i8) -> Result<i16, String> {
 
-    print!("index: {};", index);
-    let mask: i16 = 0b1 << index-1;
-    println!("mask: {:08b}", mask);
+    if index < 0 || index > 15 { return Err(String::from("Index out of bounds")); }
 
-    (bitlist.iter().enumerate().filter(|(_index, value)| *value & mask == mask).count() >= 
-    bitlist.len()/2) as i16
+    let mask: i16 = 0b1 << index;
+    // Count the 1s
+    let one: usize =  bitlist.iter().enumerate().filter(|(_index, value)| *value & mask == mask).count();
+    let zero: usize = bitlist.len() - one;
+    
+    if one >= zero { Ok(1) } else { Ok(0) }
 }
 
-#[cfg(test)]
-mod test {
-
-     #[test]
-     fn fnc_default_1() {
-         let example: Vec<i16> = vec![0b010000, 0b010000, 0b000000];
-
-         assert_eq!(super::find_most_common(&example, 5), 1);
-     }
-     #[test]
-     fn fnc_default_0() {
-         let example: Vec<i16> = vec![0b010000, 0b000000, 0b000000];
-
-         assert_eq!(super::find_most_common(&example, 5), 0);
-     }
-
-    #[test]
-     fn fnc_equal_1() {
-         let example: Vec<i16> = vec![0b010000, 0b010000, 0b000000, 0b000000];
-
-         assert_eq!(super::find_most_common(&example, 5), 1);
-     }
-}
-
+/// Execute the 3rd challange
 pub fn run(settings: Settings) {
     let filename: String;
     if settings.run_example {
@@ -153,4 +150,39 @@ pub fn run(settings: Settings) {
 
     part_1(&measurements);
     part_2(settings, &measurements);
+}
+
+
+
+#[cfg(test)]
+mod unittest {
+
+     #[test]
+     fn fnc_default_1() {
+         let example: Vec<i16> = vec![0b010000, 0b010000, 0b000000];
+
+         assert_eq!(super::find_most_common(&example, 4).unwrap(), 1);
+     }
+     #[test]
+     fn fnc_default_0() {
+         let example: Vec<i16> = vec![0b010000, 0b000000, 0b000000];
+
+         assert_eq!(super::find_most_common(&example, 4).unwrap(), 0);
+     }
+
+    #[test]
+     fn fnc_equal_1() {
+         let example: Vec<i16> = vec![0b010000, 0b010000, 0b000000, 0b000000];
+
+         assert_eq!(super::find_most_common(&example, 4).unwrap(), 1);
+     }
+
+         #[test]
+     fn fnc_test_index_out_of_bound() {
+         let example: Vec<i16> = vec![0b010000, 0b010000, 0b000000, 0b000000];
+
+         assert_eq!(super::find_most_common(&example, -1).is_err(), true);
+         assert_eq!(super::find_most_common(&example, 16).is_err(), true);
+
+     }
 }
