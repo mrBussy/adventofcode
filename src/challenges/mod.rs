@@ -1,4 +1,3 @@
-use colored::*;
 use super::Settings;
 
 pub mod day1;
@@ -21,10 +20,7 @@ pub mod day3;
 // #ff00ff	rgb(255, 0, 255)
 // #ff0080	rgb(255, 0, 128)
 pub fn run(settings: Settings) {
-    println!("{:-^1$}", " DAY 1 ".truecolor(255, 0, 0), 80);
     day1::run(settings);
-    println!("{:-^1$}", " DAY 2 ".truecolor(255, 128, 0), 80);
     day2::run(settings);
-    println!("{:-^1$}", " DAY 3 ".truecolor(255, 255, 0), 80);
     day3::run(settings);
 }

@@ -43,6 +43,8 @@ fn calculate_sliding_increase(measurements: &Vec<i32>) -> usize {
 }
 
 pub fn run(settings: Settings) {
+    println!("{:-^1$}", " DAY 1 ".truecolor(255, 0, 0), 80);
+
     let filename: String;
     if settings.run_example {
         filename = "data/example_day_1".to_string();

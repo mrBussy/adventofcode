@@ -115,7 +115,7 @@ fn part_2(settings: Settings, measurements: &Vec<i16>) {
     let co2: i16 = *subset.get(0).unwrap();
     println!("CO2: {0:b} ({0})", co2);
     println!("-----");
-    println!("Life support rating: {}", oxigen*co2);
+    println!("Life support rating: {}", oxigen as i64 *co2 as i64);
 }
 
 /// From a list of bits return the most common bit.
@@ -139,6 +139,8 @@ fn find_most_common(bitlist: &Vec<i16>, index: i8) -> Result<i16, String> {
 
 /// Execute the 3rd challange
 pub fn run(settings: Settings) {
+    println!("{:-^1$}", " DAY 3 ".truecolor(255, 255, 0), 80);
+
     let filename: String;
     if settings.run_example {
         filename = "data/example_day_3".to_string();
@@ -151,8 +153,6 @@ pub fn run(settings: Settings) {
     part_1(&measurements);
     part_2(settings, &measurements);
 }
-
-
 
 #[cfg(test)]
 mod unittest {

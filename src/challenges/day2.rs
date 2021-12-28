@@ -2,6 +2,7 @@ use regex;
 use std::fs::File;
 use std::io::*;
 use super::Settings;
+use colored::*;
 
 struct Action {
     direction: String,
@@ -75,6 +76,8 @@ fn part_2(instructions: &Vec<Action>) {
 }
 
 pub fn run(settings: Settings) {
+    println!("{:-^1$}", " DAY 2 ".truecolor(255, 128, 0), 80);
+
     let filename: String;
     if settings.run_example { 
         filename = "data/example_day_2".to_string(); }
